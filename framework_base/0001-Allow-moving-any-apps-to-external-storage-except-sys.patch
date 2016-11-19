@@ -1,0 +1,73 @@
+From bf978dcaddb99ff88c070126ece851ffeb2e1d24 Mon Sep 17 00:00:00 2001
+From: g-pl <g-pl@users.noreply.github.com>
+Date: Thu, 10 Nov 2016 17:53:35 +0100
+Subject: [PATCH] Allow moving any apps to external storage except system ones
+
+Change-Id: I1d484bf6084c8ea5177a1d27099eb18684848990
+---
+ core/java/android/app/ApplicationPackageManager.java              | 8 +++++---
+ core/java/com/android/internal/content/PackageHelper.java         | 4 ++--
+ .../core/java/com/android/server/pm/PackageManagerService.java    | 4 ++--
+ 3 files changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/core/java/android/app/ApplicationPackageManager.java b/core/java/android/app/ApplicationPackageManager.java
+index c829daa..726a1f4 100644
+--- a/core/java/android/app/ApplicationPackageManager.java
++++ b/core/java/android/app/ApplicationPackageManager.java
+@@ -1663,9 +1663,11 @@ final class ApplicationPackageManager extends PackageManager {
+ 
+         // System apps and apps demanding internal storage can't be moved
+         // anywhere else
+-        if (app.isSystemApp()
+-                || app.installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY
+-                || app.installLocation == PackageInfo.INSTALL_LOCATION_UNSPECIFIED) {
++        if (app.isSystemApp())
++        {
++                //|| app.installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY
++                //|| app.installLocation == PackageInfo.INSTALL_LOCATION_UNSPECIFIED) {
++           
+             return false;
+         }
+ 
+diff --git a/core/java/com/android/internal/content/PackageHelper.java b/core/java/com/android/internal/content/PackageHelper.java
+index 0611401..2b89069 100644
+--- a/core/java/com/android/internal/content/PackageHelper.java
++++ b/core/java/com/android/internal/content/PackageHelper.java
+@@ -388,14 +388,14 @@ public class PackageHelper {
+             }
+         }
+ 
+-        // If app expresses strong desire for internal space, honor it
++        /*// If app expresses strong desire for internal space, honor it
+         if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
+             if (fitsOnInternal) {
+                 return null;
+             } else {
+                 throw new IOException("Requested internal only, but not enough space");
+             }
+-        }
++        }*/
+ 
+         // We're left with either preferring external or auto, so just pick
+         // volume with most space
+diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
+index 920a850..6a588ce 100644
+--- a/services/core/java/com/android/server/pm/PackageManagerService.java
++++ b/services/core/java/com/android/server/pm/PackageManagerService.java
+@@ -11575,11 +11575,11 @@ public class PackageManagerService extends IPackageManager.Stub {
+                                 // Install flag overrides everything.
+                                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
+                             }
+-                            // If current upgrade specifies particular preference
++                            /*// If current upgrade specifies particular preference
+                             if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
+                                 // Application explicitly specified internal.
+                                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
+-                            } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
++                            } else*/ if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
+                                 // App explictly prefers external. Let policy decide
+                             } else {
+                                 // Prefer previous location
+-- 
+2.7.4
+
